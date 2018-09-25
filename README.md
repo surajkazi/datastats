@@ -1,3 +1,6 @@
+Data Stats
+=========
+
 1) Note on column types in schema:
 Column types currently supported by script are
  1) integer, decimal
