@@ -35,6 +35,14 @@ def fieldPopStats(col, colType='string'):
     return "|".join(tags)
 
 ############## Numeric Range stats UDF Functions #################
+
+def __toBucket(n):
+   number_digits = math.floor(math.log10(abs(n)))
+   # obscure problem with Python decimal precision will cause .3 to be .30000000004
+   # the round() below corrects that problem.
+   return round(int(n * (10 ** -number_digits)) * (10 ** number_digits), 10)
+
+
 def __getNumZeroInFracPart(x):
     if x == 0 or x >= 1 or x <= -1:
         return 0
@@ -46,24 +54,27 @@ def __getNumZeroInFracPart(x):
     return numZeros
 
 def __getRangeInt(num):
+    #number_digits = math.floor(math.log10(abs(num)))
     if num > 0:
         d = int(math.log10(num))
-        return '1{0} - 1{1}'.format('0'*d, '0'*(d+1))
+        return '1{0} to 1{1} : {2}'.format('0'*d, '0'*(d+1),  __toBucket(num))
     d = len(str(-num)) - 1
-    return '-1{0} - -1{1}'.format('0'*(d+1), '0'*d)
+    return '-1{0} to -1{1} : {2}'.format('0'*d, '0'*(d+1),  __toBucket(num))
 
-def __getRangeltZero(num):
+def __getRangeltZero(origNum, num):
+    #number_digits = math.floor(math.log10(abs(origNum)))
     if num >= 0:
         d = int(math.log10(num))
         if d == 0:
-            return '0.{0}1 - 1'.format('0'*d)
-        return '0.{0}1 - 0.{1}1'.format('0'*d, '0'*(d-1))
+            return '0.{0}1 to 1 : {1}'.format('0'*d, __toBucket(origNum))
+        return '0.{0}1 to 0.{1}1 : {2}'.format('0'*d, '0'*(d-1), __toBucket(origNum))
     d = len(str(-num)) - 1
     if d == 0:
-        return '-1 - -0.{0}1'.format('0'*d)
-    return '-0.{0}1 - -0.{1}1'.format('0'*(d-1), '0'*d)
+        return '-1 to -0.{0}1 : {1}'.format('0'*d, __toBucket(origNum))
+    return '-0.{0}1 to -0.{1}1 : {2}'.format('0'*(d-1), '0'*d, __toBucket(origNum))
 '''
 -------------------------
+#TODO fix these comments ... they are obsolete (wrong)
 nums >= 1 and nums <= -1
 .
 .
@@ -96,7 +107,7 @@ def getRange(num):
     else:
         d = __getNumZeroInFracPart(num) + 1
         n = int('1'*d)
-        return __getRangeltZero(-n if num < 0 else n)
+        return __getRangeltZero(num, -n if num < 0 else n)
 
 ############## Date Range UDF Functions #################
 def getYear(col):
