@@ -53,49 +53,49 @@ def __getNumZeroInFracPart(x):
         numZeros += 1
     return numZeros
 
-def __getRangeInt(num):
-    #number_digits = math.floor(math.log10(abs(num)))
+def __getRangeInt(origNum, num):
+    bucket = __toBucket(origNum)
+
     if num > 0:
         d = int(math.log10(num))
-        return '1{0} to 1{1} : {2}'.format('0'*d, '0'*(d+1),  __toBucket(num))
+        return '1{0} to 1{1} : {2}'.format('0'*d, '0'*(d+1), bucket)
     d = len(str(-num)) - 1
-    return '-1{0} to -1{1} : {2}'.format('0'*d, '0'*(d+1),  __toBucket(num))
+    return '-1{0} to -1{1} : {2}'.format('0'*d, '0'*(d+1), bucket)
 
 def __getRangeltZero(origNum, num):
-    #number_digits = math.floor(math.log10(abs(origNum)))
+    bucket = __toBucket(origNum)
+
     if num >= 0:
         d = int(math.log10(num))
         if d == 0:
-            return '0.{0}1 to 1 : {1}'.format('0'*d, __toBucket(origNum))
-        return '0.{0}1 to 0.{1}1 : {2}'.format('0'*d, '0'*(d-1), __toBucket(origNum))
+            return '0.{0}1 to 1 : {1}'.format('0'*d, bucket)
+        return '0.{0}1 to 0.{1}1 : {2}'.format('0'*d, '0'*(d-1), bucket)
     d = len(str(-num)) - 1
     if d == 0:
-        return '-1 to -0.{0}1 : {1}'.format('0'*d, __toBucket(origNum))
-    return '-0.{0}1 to -0.{1}1 : {2}'.format('0'*(d-1), '0'*d, __toBucket(origNum))
+        return '-1 to -0.{0}1 : {1}'.format('0'*d, bucket)
+    return '-0.{0}1 to -0.{1}1 : {2}'.format('0'*(d-1), '0'*d, bucket)
 '''
 -------------------------
-#TODO fix these comments ... they are obsolete (wrong)
 nums >= 1 and nums <= -1
 .
 .
-(-100 - -10]
-(-10 - -1]
+(-100 to -90], (-90 to -80], ... , (-20 to -10]
+(-10 to -9], (-9 to -8], ... , (-2 to -1]
 .
 .
-[1 - 10)
-[10 - 100)
+[1 to 2), [2 to 3), ... , [9 to 10)
+[10 to 20), [20 to 30), ... , [90 to 100)
 .
 .
 -------------------------
 nums < 1 and nums > -1
 .
 .
-(-1 - -0.1]
-(-0.1 - -0.01]
+(-1 to -0.9], (-0.9 to -0.8], ... , (-0.1 to -0.01]
 .
 .
-[0.01 - 0.1)
-[0.1 - 1)
+[0.01 to 0.02), [0.02 to 0.03), ... , [0.09 to 0.1)
+[0.1 to 0.2), [0.2 to 0.3), ... , [0.9 to 1)
 .
 .
 '''
@@ -103,7 +103,7 @@ def getRange(num):
     if num == 0:
         return '0'
     if num >= 1 or num <= -1:
-        return __getRangeInt(int(num))
+        return __getRangeInt(num, int(num))
     else:
         d = __getNumZeroInFracPart(num) + 1
         n = int('1'*d)
